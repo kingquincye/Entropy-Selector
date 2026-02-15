@@ -121,11 +121,21 @@
                     <div class="text-xs text-slate-400 uppercase tracking-wider">Total Items</div>
                     <div id="count-total" class="text-xl font-mono font-bold text-white">0</div>
                 </div>
-                <div class="bg-slate-900 rounded p-2 border border-slate-700 relative overflow-hidden">
+                <!-- Added cursor-pointer to trigger manual reshuffle -->
+                <div onclick="manualReshuffle()"
+                    class="bg-slate-900 rounded p-2 border border-slate-700 relative overflow-hidden cursor-pointer group hover:border-purple-500 transition-colors"
+                    title="Click to Reshuffle Deck">
                     <div class="absolute inset-0 bg-purple-500/10 hidden" id="progress-bar"></div>
-                    <div class="relative z-10">
-                        <div class="text-xs text-slate-400 uppercase tracking-wider">Remaining</div>
-                        <div id="count-remaining" class="text-xl font-mono font-bold text-purple-400">0</div>
+                    <div class="relative z-10 flex flex-col items-center justify-center h-full">
+                        <div
+                            class="text-xs text-slate-400 uppercase tracking-wider group-hover:text-purple-400 transition-colors">
+                            Remaining</div>
+                        <div class="flex items-center gap-2">
+                            <span id="count-remaining" class="text-xl font-mono font-bold text-purple-400">0</span>
+                            <!-- Small restart icon that appears on hover/active -->
+                            <i data-lucide="rotate-ccw"
+                                class="w-3 h-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -137,7 +147,8 @@
                     <button onclick="clearInput()"
                         class="text-xs text-red-400 hover:text-red-300 transition-colors">Clear</button>
                 </div>
-                <textarea id="input-area"
+                <!-- Added oninput listener for real-time updates -->
+                <textarea id="input-area" oninput="handleInput()"
                     class="w-full flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm font-mono focus:outline-none focus:border-purple-500 transition-colors resize-none text-slate-300 placeholder-slate-600"
                     placeholder="Enter items here...&#10;One per line&#10;Paste from Excel/Text&#10;Supports 10k+ lines"></textarea>
                 <div
@@ -146,13 +157,8 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="processInput()"
-                    class="col-span-2 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-medium transition-colors border border-slate-600">
-                    Load / Reset Deck
-                </button>
-            </div>
+            <!-- Removed the big Load/Reset button entirely -->
+
         </section>
 
         <!-- Right Panel: Display & History -->
@@ -254,7 +260,14 @@
                 btnModeDeck.classList.add('bg-purple-600', 'text-white');
                 btnModeInfinite.classList.remove('bg-purple-600', 'text-white');
                 btnModeInfinite.classList.add('bg-transparent', 'text-slate-400');
-                processInput(); // Re-initialize deck
+
+                // If switching to deck, ensure it's synced with items
+                if (deck.length === 0 && items.length > 0) {
+                    resetDeck();
+                } else {
+                    updateStats();
+                }
+
             } else {
                 btnModeInfinite.classList.remove('bg-transparent', 'text-slate-400');
                 btnModeInfinite.classList.add('bg-purple-600', 'text-white');
@@ -264,19 +277,34 @@
             }
         }
 
-        // Parse Input and Update Lists
-        function processInput() {
+        // Parse Input and Update Lists - Now called on Input
+        function handleInput() {
             const raw = inputArea.value;
-            // Split by newline, filter empty lines, trim whitespace
-            items = raw.split(/\n/).map(line => line.trim()).filter(line => line.length > 0);
-
-            // Save to local storage for QoL
             localStorage.setItem('selector_input', raw);
 
+            // Simple debounce could go here, but JS splits string fast enough for <50k lines
+            items = raw.split(/\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+            // When input changes, we must reset the deck to ensure consistency
             if (currentMode === 'deck') {
                 resetDeck();
             }
             updateStats();
+        }
+
+        // Kept for initial load
+        function processInput() {
+            handleInput();
+        }
+
+        function manualReshuffle() {
+            if (currentMode === 'deck' && items.length > 0) {
+                resetDeck();
+                // Visual feedback for manual reset
+                const countBox = document.getElementById('count-remaining').parentElement.parentElement.parentElement;
+                countBox.classList.add('bg-purple-900/50');
+                setTimeout(() => countBox.classList.remove('bg-purple-900/50'), 200);
+            }
         }
 
         function resetDeck() {
@@ -284,14 +312,6 @@
             deck = [...items];
             fisherYatesShuffle(deck);
             updateStats();
-
-            // UI Feedback
-            if (items.length > 0) {
-                pickBtn.textContent = "EXECUTE SELECTION";
-                pickBtn.disabled = false;
-                pickBtn.classList.remove('bg-slate-700');
-                pickBtn.classList.add('bg-purple-600');
-            }
         }
 
         // The "True Random" Shuffle
@@ -311,19 +331,19 @@
 
         function pick() {
             if (items.length === 0) {
-                alert("Please enter some items in the Data Pool first.");
+                // Focus input and shake it slightly if empty
+                inputArea.focus();
+                inputArea.parentElement.classList.add('animate-pulse');
+                setTimeout(() => inputArea.parentElement.classList.remove('animate-pulse'), 500);
                 return;
             }
 
             let selectedItem = "";
 
             if (currentMode === 'deck') {
+                // Auto-reshuffle if empty
                 if (deck.length === 0) {
-                    // Auto-reshuffle or Ask? For flow, let's auto-reshuffle notification
-                    pickBtn.textContent = "DECK EMPTY - RELOAD";
-                    pickBtn.classList.remove('bg-purple-600');
-                    pickBtn.classList.add('bg-slate-700');
-                    return; // Prevent picking
+                    resetDeck();
                 }
                 // Pop from the shuffled deck (efficient O(1))
                 selectedItem = deck.pop();
@@ -360,23 +380,28 @@
 
             if (currentMode === 'deck') {
                 countRemaining.textContent = deck.length;
-                countRemaining.parentElement.parentElement.classList.remove('opacity-50');
+                countRemaining.parentElement.parentElement.parentElement.classList.remove('opacity-50');
 
-                if (items.length > 0 && deck.length === 0) {
-                    pickBtn.textContent = "RESET DECK";
-                    pickBtn.classList.remove('bg-purple-600');
-                    pickBtn.classList.add('bg-slate-700');
-                } else if (items.length > 0) {
-                    pickBtn.textContent = "EXECUTE SELECTION";
-                    pickBtn.classList.add('bg-purple-600');
-                    pickBtn.classList.remove('bg-slate-700');
+                // Button Logic
+                if (items.length > 0) {
+                    if (deck.length === 0) {
+                        pickBtn.textContent = "RESHUFFLE & PICK";
+                        pickBtn.classList.add('bg-purple-600'); // Keep it active
+                    } else {
+                        pickBtn.textContent = "EXECUTE SELECTION";
+                    }
+                } else {
+                    pickBtn.textContent = "WAITING FOR DATA...";
                 }
 
             } else {
                 countRemaining.textContent = "∞";
-                countRemaining.parentElement.parentElement.classList.add('opacity-50');
+                countRemaining.parentElement.parentElement.parentElement.classList.add('opacity-50');
                 pickBtn.textContent = "EXECUTE RANDOM";
             }
+
+            // Initial Lucide refresh for new icons
+            lucide.createIcons();
         }
 
         function addToHistory(item) {
@@ -404,7 +429,7 @@
 
         function clearInput() {
             inputArea.value = '';
-            processInput();
+            handleInput(); // Changed from processInput
             inputArea.focus();
         }
 
@@ -417,7 +442,7 @@
             const savedData = localStorage.getItem('selector_input');
             if (savedData) {
                 inputArea.value = savedData;
-                processInput();
+                handleInput(); // Changed from processInput
             }
         }
 
