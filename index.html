@@ -12,15 +12,12 @@
 
         :root {
             --primary: #8b5cf6;
-            /* Violet 500 */
             --primary-dark: #6d28d9;
-            /* Violet 700 */
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
-            /* Slate 900 */
             color: #e2e8f0;
         }
 
@@ -77,6 +74,19 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
+
+        /* Added for history fade-in */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -90,7 +100,7 @@
                     class="text-purple-500">Selector</span></h1>
         </div>
         <div class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1 rounded">
-            v2.0 :: CRYPTO_SECURE
+            v2.1 :: PERSISTENT
         </div>
     </header>
 
@@ -121,18 +131,15 @@
                     <div class="text-xs text-slate-400 uppercase tracking-wider">Total Items</div>
                     <div id="count-total" class="text-xl font-mono font-bold text-white">0</div>
                 </div>
-                <!-- Added cursor-pointer to trigger manual reshuffle -->
                 <div onclick="manualReshuffle()"
                     class="bg-slate-900 rounded p-2 border border-slate-700 relative overflow-hidden cursor-pointer group hover:border-purple-500 transition-colors"
                     title="Click to Reshuffle Deck">
-                    <div class="absolute inset-0 bg-purple-500/10 hidden" id="progress-bar"></div>
                     <div class="relative z-10 flex flex-col items-center justify-center h-full">
                         <div
                             class="text-xs text-slate-400 uppercase tracking-wider group-hover:text-purple-400 transition-colors">
                             Remaining</div>
                         <div class="flex items-center gap-2">
                             <span id="count-remaining" class="text-xl font-mono font-bold text-purple-400">0</span>
-                            <!-- Small restart icon that appears on hover/active -->
                             <i data-lucide="rotate-ccw"
                                 class="w-3 h-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                         </div>
@@ -147,7 +154,6 @@
                     <button onclick="clearInput()"
                         class="text-xs text-red-400 hover:text-red-300 transition-colors">Clear</button>
                 </div>
-                <!-- Added oninput listener for real-time updates -->
                 <textarea id="input-area" oninput="handleInput()"
                     class="w-full flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm font-mono focus:outline-none focus:border-purple-500 transition-colors resize-none text-slate-300 placeholder-slate-600"
                     placeholder="Enter items here...&#10;One per line&#10;Paste from Excel/Text&#10;Supports 10k+ lines"></textarea>
@@ -157,8 +163,6 @@
                 </div>
             </div>
 
-            <!-- Removed the big Load/Reset button entirely -->
-
         </section>
 
         <!-- Right Panel: Display & History -->
@@ -167,7 +171,6 @@
             <!-- Result Display -->
             <div
                 class="flex-1 flex flex-col items-center justify-center p-8 min-h-[250px] relative overflow-hidden group">
-                <!-- Background decoration -->
                 <div
                     class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-slate-900 to-slate-900">
                 </div>
@@ -180,11 +183,10 @@
                 <div id="result-container" class="hidden relative z-10 w-full text-center">
                     <div class="text-xs font-mono text-purple-500 mb-2 tracking-[0.2em] uppercase">Selected</div>
                     <h2 id="result-text" class="text-3xl md:text-4xl font-bold text-white leading-tight break-words">
-                        <!-- Result goes here -->
+                        <!-- Result -->
                     </h2>
                 </div>
 
-                <!-- Big Pick Button (Floating on Mobile, Fixed here on Desktop) -->
                 <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-900 to-transparent">
                     <button onclick="pick()" id="pick-btn"
                         class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-900/50 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group-hover:shadow-purple-700/50">
@@ -223,7 +225,7 @@
         let items = [];         // The master list of items
         let deck = [];          // The working list for "Deck" mode
         let currentMode = 'deck'; // 'deck' or 'infinite'
-        let history = [];
+        let history = [];       // Array of history objects {text, time}
 
         // --- DOM ELEMENTS ---
         const inputArea = document.getElementById('input-area');
@@ -241,29 +243,88 @@
         lucide.createIcons();
         loadFromStorage();
 
+        // --- TOTAL STATE PERSISTENCE LOGIC ---
+        function saveState() {
+            const stateObj = {
+                mode: currentMode,
+                deck: deck,
+                history: history,
+                input: inputArea.value
+            };
+            localStorage.setItem('selector_state', JSON.stringify(stateObj));
+        }
+
+        function loadFromStorage() {
+            const savedState = localStorage.getItem('selector_state');
+
+            if (savedState) {
+                // Load v2.1 Advanced State
+                const state = JSON.parse(savedState);
+
+                // 1. Restore Input & Master Items
+                if (state.input) {
+                    inputArea.value = state.input;
+                    items = state.input.split(/\n/).map(line => line.trim()).filter(line => line.length > 0);
+                }
+
+                // 2. Restore History
+                if (state.history && state.history.length > 0) {
+                    history = state.history;
+                    historyList.innerHTML = ''; // Clear empty message
+                    // Append in order (newest is at index 0, so we append to keep it at the top)
+                    history.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = "flex items-center gap-3 p-2 bg-slate-900/50 rounded border border-slate-800/50 animate-[fadeIn_0.3s_ease-out]";
+                        li.innerHTML = `
+                            <span class="text-slate-500 text-[10px]">${item.time}</span>
+                            <span class="text-purple-300 flex-1 truncate">${item.text}</span>
+                        `;
+                        historyList.appendChild(li);
+                    });
+                }
+
+                // 3. Restore Mode
+                if (state.mode) {
+                    setMode(state.mode, false); // pass false to avoid double-saving during init
+                }
+
+                // 4. Restore Deck
+                if (state.deck && state.mode === 'deck') {
+                    deck = state.deck;
+                } else if (items.length > 0 && currentMode === 'deck') {
+                    resetDeck(false);
+                }
+
+                updateStats();
+            } else {
+                // Fallback for v2.0 (Just grabs the raw string if you updated from the old code)
+                const legacyData = localStorage.getItem('selector_input');
+                if (legacyData) {
+                    inputArea.value = legacyData;
+                    handleInput();
+                }
+            }
+        }
+
         // --- CORE LOGIC ---
 
-        // Cryptographically Secure Random Number Generator (0 inclusive to 1 exclusive)
-        // Replaces Math.random() for security
         function secureRandom() {
             const array = new Uint32Array(1);
             window.crypto.getRandomValues(array);
             return array[0] / (0xFFFFFFFF + 1);
         }
 
-        function setMode(mode) {
+        function setMode(mode, save = true) {
             currentMode = mode;
 
-            // Visual Toggle
             if (mode === 'deck') {
                 btnModeDeck.classList.remove('bg-transparent', 'text-slate-400');
                 btnModeDeck.classList.add('bg-purple-600', 'text-white');
                 btnModeInfinite.classList.remove('bg-purple-600', 'text-white');
                 btnModeInfinite.classList.add('bg-transparent', 'text-slate-400');
 
-                // If switching to deck, ensure it's synced with items
                 if (deck.length === 0 && items.length > 0) {
-                    resetDeck();
+                    resetDeck(false); // Let the saveState below handle it
                 } else {
                     updateStats();
                 }
@@ -275,53 +336,41 @@
                 btnModeDeck.classList.add('bg-transparent', 'text-slate-400');
                 updateStats();
             }
+
+            if (save) saveState();
         }
 
-        // Parse Input and Update Lists - Now called on Input
         function handleInput() {
             const raw = inputArea.value;
-            localStorage.setItem('selector_input', raw);
-
-            // Simple debounce could go here, but JS splits string fast enough for <50k lines
             items = raw.split(/\n/).map(line => line.trim()).filter(line => line.length > 0);
 
-            // When input changes, we must reset the deck to ensure consistency
             if (currentMode === 'deck') {
-                resetDeck();
+                resetDeck(false);
             }
             updateStats();
-        }
-
-        // Kept for initial load
-        function processInput() {
-            handleInput();
+            saveState(); // Save entire state when input changes
         }
 
         function manualReshuffle() {
             if (currentMode === 'deck' && items.length > 0) {
-                resetDeck();
-                // Visual feedback for manual reset
+                resetDeck(true);
                 const countBox = document.getElementById('count-remaining').parentElement.parentElement.parentElement;
                 countBox.classList.add('bg-purple-900/50');
                 setTimeout(() => countBox.classList.remove('bg-purple-900/50'), 200);
             }
         }
 
-        function resetDeck() {
-            // Create a copy and shuffle it using Fisher-Yates with Crypto
+        function resetDeck(save = true) {
             deck = [...items];
             fisherYatesShuffle(deck);
             updateStats();
+            if (save) saveState();
         }
 
-        // The "True Random" Shuffle
         function fisherYatesShuffle(array) {
             let m = array.length, t, i;
-            // While there remain elements to shuffle…
             while (m) {
-                // Pick a remaining element using Crypto RNG
                 i = Math.floor(secureRandom() * m--);
-                // And swap it with the current element.
                 t = array[m];
                 array[m] = array[i];
                 array[i] = t;
@@ -331,7 +380,6 @@
 
         function pick() {
             if (items.length === 0) {
-                // Focus input and shake it slightly if empty
                 inputArea.focus();
                 inputArea.parentElement.classList.add('animate-pulse');
                 setTimeout(() => inputArea.parentElement.classList.remove('animate-pulse'), 500);
@@ -341,35 +389,28 @@
             let selectedItem = "";
 
             if (currentMode === 'deck') {
-                // Auto-reshuffle if empty
-                if (deck.length === 0) {
-                    resetDeck();
-                }
-                // Pop from the shuffled deck (efficient O(1))
-                selectedItem = deck.pop();
+                if (deck.length === 0) resetDeck(false);
+                selectedItem = deck.pop(); // Remove from deck
             } else {
-                // Infinite Mode: Pick random index
                 const idx = Math.floor(secureRandom() * items.length);
                 selectedItem = items[idx];
             }
 
-            // Display Result
             displayResult(selectedItem);
             addToHistory(selectedItem);
             updateStats();
+            saveState(); // Crucial: Saves the new deck array and history snapshot
         }
 
         function displayResult(text) {
             emptyState.classList.add('hidden');
             resultContainer.classList.remove('hidden');
 
-            // Animation reset
             resultText.classList.remove('glitch-anim');
-            void resultText.offsetWidth; // Trigger reflow
+            void resultText.offsetWidth;
             resultText.textContent = text;
             resultText.classList.add('glitch-anim');
 
-            // Stop glitch after a moment
             setTimeout(() => {
                 resultText.classList.remove('glitch-anim');
             }, 300);
@@ -382,11 +423,10 @@
                 countRemaining.textContent = deck.length;
                 countRemaining.parentElement.parentElement.parentElement.classList.remove('opacity-50');
 
-                // Button Logic
                 if (items.length > 0) {
                     if (deck.length === 0) {
                         pickBtn.textContent = "RESHUFFLE & PICK";
-                        pickBtn.classList.add('bg-purple-600'); // Keep it active
+                        pickBtn.classList.add('bg-purple-600');
                     } else {
                         pickBtn.textContent = "EXECUTE SELECTION";
                     }
@@ -400,28 +440,30 @@
                 pickBtn.textContent = "EXECUTE RANDOM";
             }
 
-            // Initial Lucide refresh for new icons
             lucide.createIcons();
         }
 
         function addToHistory(item) {
-            // Remove "No history" msg if exists
             if (historyList.firstElementChild && historyList.firstElementChild.innerText === "No history yet...") {
                 historyList.innerHTML = '';
             }
 
             const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" });
 
+            // Push to state array
+            history.unshift({ text: item, time: timestamp });
+            if (history.length > 100) history.pop();
+
+            // Render it visually
             const li = document.createElement('li');
             li.className = "flex items-center gap-3 p-2 bg-slate-900/50 rounded border border-slate-800/50 animate-[fadeIn_0.3s_ease-out]";
             li.innerHTML = `
                 <span class="text-slate-500 text-[10px]">${timestamp}</span>
                 <span class="text-purple-300 flex-1 truncate">${item}</span>
             `;
-
             historyList.prepend(li);
 
-            // Keep history memory sane (limit to last 100 for DOM performance)
+            // Cleanup DOM memory if it exceeds 100 visually
             if (historyList.children.length > 100) {
                 historyList.removeChild(historyList.lastChild);
             }
@@ -429,33 +471,15 @@
 
         function clearInput() {
             inputArea.value = '';
-            handleInput(); // Changed from processInput
+            handleInput();
             inputArea.focus();
         }
 
         function clearHistory() {
+            history = [];
             historyList.innerHTML = '<li class="text-slate-600 text-xs text-center py-4 italic">No history yet...</li>';
+            saveState();
         }
-
-        // Persistence
-        function loadFromStorage() {
-            const savedData = localStorage.getItem('selector_input');
-            if (savedData) {
-                inputArea.value = savedData;
-                handleInput(); // Changed from processInput
-            }
-        }
-
-        // Add tailwind animation for history
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-5px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
-
     </script>
 </body>
 
