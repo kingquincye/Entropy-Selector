@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark theme-slate">
 
 <head>
     <meta charset="UTF-8">
@@ -11,14 +11,64 @@
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
 
         :root {
-            --primary: #8b5cf6;
-            --primary-dark: #6d28d9;
+            --primary-rgb: 139, 92, 246; /* purple-500 */
+            --primary-hover-rgb: 167, 139, 250; /* purple-400 */
+            --primary: rgb(var(--primary-rgb));
+            --primary-hover: rgb(var(--primary-hover-rgb));
+            --bg-body: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.45);
+            --bg-panel: #0f172a;
+            --bg-log: #020617;
+            --border: #334155;
+            --text-accent: #a855f7;
+            --text-base: #e2e8f0;
+            --text-muted: #64748b;
+        }
+
+        html.theme-cyberpunk {
+            --primary-rgb: 16, 185, 129; /* emerald-500 */
+            --primary-hover-rgb: 52, 211, 153; /* emerald-400 */
+            --bg-body: #050505;
+            --bg-card: rgba(18, 18, 18, 0.75);
+            --bg-panel: #0f0f0f;
+            --bg-log: #070707;
+            --border: #064e3b; /* deep emerald */
+            --text-accent: #10b981;
+            --text-base: #10b981;
+            --text-muted: #065f46;
+        }
+
+        html.theme-sunset {
+            --primary-rgb: 244, 63, 94; /* rose-500 */
+            --primary-hover-rgb: 251, 113, 133; /* rose-400 */
+            --bg-body: #180b12;
+            --bg-card: rgba(43, 15, 30, 0.6);
+            --bg-panel: #1e0e18;
+            --bg-log: #0f050b;
+            --border: #881337;
+            --text-accent: #f43f5e;
+            --text-base: #ffe4e6;
+            --text-muted: #9f1239;
+        }
+
+        html.theme-deepsea {
+            --primary-rgb: 13, 148, 136; /* teal-600 */
+            --primary-hover-rgb: 20, 184, 166; /* teal-500 */
+            --bg-body: #02161f;
+            --bg-card: rgba(4, 47, 46, 0.5);
+            --bg-panel: #022535;
+            --bg-log: #01111a;
+            --border: #115e59;
+            --text-accent: #2dd4bf;
+            --text-base: #ccfbf1;
+            --text-muted: #0d9488;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
+            background-color: var(--bg-body);
+            color: var(--text-base);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .font-mono {
@@ -31,29 +81,12 @@
         }
 
         @keyframes glitch {
-            0% {
-                transform: translate(0)
-            }
-
-            20% {
-                transform: translate(-2px, 2px)
-            }
-
-            40% {
-                transform: translate(-2px, -2px)
-            }
-
-            60% {
-                transform: translate(2px, 2px)
-            }
-
-            80% {
-                transform: translate(2px, -2px)
-            }
-
-            100% {
-                transform: translate(0)
-            }
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
         }
 
         /* Custom Scrollbar */
@@ -63,84 +96,122 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1e293b;
+            background: var(--bg-panel);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #475569;
+            background: var(--border);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+            background: var(--primary);
         }
 
-        /* Added for history fade-in */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+
+        /* Theme Utility Classes */
+        .color-bg-body { background-color: var(--bg-body); }
+        .color-bg-card { background-color: var(--bg-card); }
+        .color-bg-panel { background-color: var(--bg-panel); }
+        .color-bg-log { background-color: var(--bg-log); }
+        .color-border { border-color: var(--border); }
+        .color-text-accent { color: var(--text-accent); }
+        .color-text-base { color: var(--text-base); }
+        .color-text-muted { color: var(--text-muted); }
+        
+        .color-btn {
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(var(--primary-rgb), 0.3);
+            transition: all 0.2s ease-in-out;
+        }
+        .color-btn:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            box-shadow: 0 10px 20px -3px rgba(var(--primary-rgb), 0.45);
+        }
+        .color-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* Customize sliders */
+        input[type="range"]::-webkit-slider-thumb {
+            background: var(--primary);
+            border: 2px solid var(--text-base);
+            box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            background: var(--primary);
+            border: 2px solid var(--text-base);
+            box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
         }
     </style>
 </head>
 
-<body class="min-h-screen flex flex-col items-center p-4 selection:bg-purple-500 selection:text-white">
+<body class="min-h-screen flex flex-col items-center p-4 selection:bg-[var(--primary)] selection:text-white">
 
     <!-- Header -->
     <header class="w-full max-w-3xl flex justify-between items-center mb-6 mt-2">
         <div class="flex items-center gap-2">
-            <i data-lucide="shuffle" class="text-purple-400 w-8 h-8"></i>
-            <h1 class="text-2xl font-bold tracking-tight text-white">Entropy <span
-                    class="text-purple-500">Selector</span></h1>
+            <i data-lucide="shuffle" class="color-text-accent w-8 h-8"></i>
+            <h1 class="text-2xl font-bold tracking-tight text-white">Entropy <span class="color-text-accent">Selector</span></h1>
         </div>
-        <!-- Removed version badge -->
-
+        <button onclick="openSettings()" class="p-2 rounded-xl color-bg-panel hover:bg-slate-800/80 border color-border text-slate-400 hover:text-white transition-all flex items-center justify-center shadow-lg" title="Open Settings">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
     </header>
 
     <!-- Main Card -->
-    <main
-        class="w-full max-w-3xl bg-slate-800/50 backdrop-blur-lg rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col md:flex-row">
+    <main class="w-full max-w-3xl color-bg-card backdrop-blur-lg rounded-2xl border color-border shadow-2xl overflow-hidden flex flex-col md:flex-row">
 
         <!-- Left Panel: Controls & Input -->
-        <section class="w-full md:w-1/2 p-6 border-b md:border-b-0 md:border-r border-slate-700 flex flex-col gap-4">
+        <section class="w-full md:w-1/2 p-6 border-b md:border-b-0 md:border-r color-border flex flex-col gap-4">
 
             <!-- Mode Toggle -->
-            <div class="bg-slate-900/50 p-1 rounded-lg flex text-sm font-medium">
-                <button id="mode-deck"
-                    class="flex-1 py-2 px-3 rounded-md bg-purple-600 text-white shadow transition-all flex items-center justify-center gap-2"
-                    onclick="setMode('deck')">
-                    <i data-lucide="layers" class="w-4 h-4"></i> Deck (Exhaustive)
+            <div class="color-bg-panel/50 p-1 rounded-xl flex text-xs font-semibold border color-border gap-1">
+                <button id="mode-deck" onclick="setMode('deck')"
+                    class="flex-1 py-2 px-1 rounded-lg bg-[var(--primary)] text-white shadow transition-all flex items-center justify-center gap-1.5 focus:outline-none">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i> Deck
                 </button>
-                <button id="mode-infinite"
-                    class="flex-1 py-2 px-3 rounded-md text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2"
-                    onclick="setMode('infinite')">
-                    <i data-lucide="infinity" class="w-4 h-4"></i> Infinite
+                <button id="mode-infinite" onclick="setMode('infinite')"
+                    class="flex-1 py-2 px-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5 focus:outline-none">
+                    <i data-lucide="infinity" class="w-3.5 h-3.5"></i> Infinite
+                </button>
+                <button id="mode-weighted" onclick="setMode('weighted')"
+                    class="flex-1 py-2 px-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5 focus:outline-none">
+                    <i data-lucide="scale" class="w-3.5 h-3.5"></i> Weighted
                 </button>
             </div>
 
             <!-- Stats -->
             <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="bg-slate-900 rounded p-2 border border-slate-700">
-                    <div class="text-xs text-slate-400 uppercase tracking-wider">Total Items</div>
-                    <div id="count-total" class="text-xl font-mono font-bold text-white">0</div>
+                <div class="color-bg-panel rounded-xl p-2.5 border color-border shadow-inner">
+                    <div class="text-[10px] color-text-muted uppercase tracking-wider font-bold">Total Items</div>
+                    <div id="count-total" class="text-xl font-mono font-bold text-white mt-0.5">0</div>
                 </div>
-                <div onclick="manualReshuffle()"
-                    class="bg-slate-900 rounded p-2 border border-slate-700 relative overflow-hidden cursor-pointer group hover:border-purple-500 transition-colors"
+                <div id="remaining-container" onclick="manualReshuffle()"
+                    class="color-bg-panel rounded-xl p-2.5 border color-border relative overflow-hidden cursor-pointer group hover:border-[var(--primary)] transition-all shadow-inner"
                     title="Click to Reshuffle Deck">
                     <div class="relative z-10 flex flex-col items-center justify-center h-full">
-                        <div
-                            class="text-xs text-slate-400 uppercase tracking-wider group-hover:text-purple-400 transition-colors">
+                        <div class="text-[10px] color-text-muted uppercase tracking-wider group-hover:color-text-accent transition-colors font-bold">
                             Remaining</div>
-                        <div class="flex items-center gap-2">
-                            <span id="count-remaining" class="text-xl font-mono font-bold text-purple-400">0</span>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span id="count-remaining" class="text-xl font-mono font-bold color-text-accent">0</span>
                             <i data-lucide="rotate-ccw"
-                                class="w-3 h-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                class="w-3.5 h-3.5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                         </div>
                     </div>
                 </div>
@@ -148,80 +219,315 @@
 
             <!-- Input Area -->
             <div class="flex-1 flex flex-col relative">
-                <div class="flex justify-between items-end mb-1">
-                    <label class="text-xs text-slate-400 font-bold uppercase">Data Pool</label>
-                    <button onclick="clearInput()"
-                        class="text-xs text-red-400 hover:text-red-300 transition-colors">Clear</button>
+                <div class="flex justify-between items-center mb-1.5">
+                    <label class="text-xs color-text-muted font-bold uppercase tracking-wider">Data Pool</label>
+                    <div class="flex items-center gap-2">
+                        <select id="preset-select" onchange="loadPreset(this.value)" class="text-xs color-bg-panel border color-border rounded-lg px-2 py-1 color-text-base focus:outline-none focus:border-[var(--primary)] font-medium">
+                            <option value="" disabled selected>Presets...</option>
+                            <option value="coin">Coin Flip</option>
+                            <option value="dice">6-Sided Die</option>
+                            <option value="rps">Rock Paper Scissors</option>
+                            <option value="yesno">Yes/No/Maybe</option>
+                            <option value="cards">Card Suits</option>
+                            <option value="numbers">Numbers 1-100</option>
+                        </select>
+                        <button onclick="clearInput()" class="text-xs text-red-400 hover:text-red-300 font-bold transition-colors">Clear</button>
+                    </div>
                 </div>
+                
+                <!-- Data Prep Utilities -->
+                <div class="flex flex-wrap gap-1.5 mb-2">
+                    <button onclick="sortInputAZ()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
+                        <i data-lucide="arrow-down-az" class="w-3 h-3"></i> Sort A-Z
+                    </button>
+                    <button onclick="sortInputZA()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
+                        <i data-lucide="arrow-up-za" class="w-3 h-3"></i> Sort Z-A
+                    </button>
+                    <button onclick="deduplicateInput()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
+                        <i data-lucide="minus-square" class="w-3 h-3"></i> Deduplicate
+                    </button>
+                    <button onclick="shuffleInput()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
+                        <i data-lucide="shuffle" class="w-3 h-3"></i> Shuffle
+                    </button>
+                    <button onclick="reverseInput()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
+                        <i data-lucide="arrow-left-right" class="w-3 h-3"></i> Reverse
+                    </button>
+                </div>
+
                 <textarea id="input-area" oninput="handleInput()"
-                    class="w-full flex-1 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm font-mono focus:outline-none focus:border-purple-500 transition-colors resize-none text-slate-300 placeholder-slate-600"
-                    placeholder="Enter items here...&#10;One per line&#10;Paste from Excel/Text&#10;Supports 10k+ lines"></textarea>
-                <div
-                    class="absolute bottom-3 right-3 text-[10px] text-slate-600 pointer-events-none bg-slate-900 px-1 rounded">
-                    INPUT
+                    class="w-full flex-1 color-bg-panel border color-border rounded-xl p-3 text-sm font-mono focus:outline-none focus:border-[var(--primary)] transition-all resize-none color-text-base placeholder-slate-600 shadow-inner"
+                    placeholder="Enter items here...&#10;One per line&#10;In Weighted mode: Option: Weight (e.g. Apples: 5)&#10;Supports 10k+ lines"></textarea>
+                <div class="absolute bottom-3 right-3 text-[10px] text-slate-600 pointer-events-none bg-slate-900 px-1 rounded border border-slate-800">
+                    POOL
+                </div>
+            </div>
+            
+            <!-- Weighted Preview List -->
+            <div id="weighted-preview-container" class="hidden border color-border rounded-xl p-3 color-bg-panel/40 shadow-inner">
+                <div class="text-[10px] color-text-muted uppercase tracking-wider font-bold mb-1.5">Parsed Weights & Odds</div>
+                <div id="weighted-preview-list" class="max-h-24 overflow-y-auto space-y-1 font-mono text-[11px]">
+                    <!-- Live parsed probabilities -->
                 </div>
             </div>
 
         </section>
 
         <!-- Right Panel: Display & History -->
-        <section class="w-full md:w-1/2 bg-slate-900 flex flex-col">
+        <section class="w-full md:w-1/2 color-bg-panel flex flex-col">
 
             <!-- Result Display -->
-            <div
-                class="flex-1 flex flex-col items-center justify-center p-8 min-h-[250px] relative overflow-hidden group">
-                <div
-                    class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-slate-900 to-slate-900">
+            <div class="flex-1 flex flex-col items-center justify-center p-8 min-h-[280px] relative overflow-hidden group">
+                <div id="radial-glow" class="absolute inset-0 transition-all duration-300" 
+                     style="background: radial-gradient(circle at center, rgba(var(--primary-rgb), 0.15) 0%, var(--bg-panel) 80%);">
                 </div>
 
                 <div id="empty-state" class="text-center opacity-50 relative z-10">
-                    <i data-lucide="box" class="w-12 h-12 mx-auto mb-2 text-slate-600"></i>
-                    <p class="text-slate-500 text-sm">Ready for data</p>
+                    <i data-lucide="package-open" class="w-12 h-12 mx-auto mb-2 text-slate-500"></i>
+                    <p class="text-slate-400 text-sm font-medium">Ready for data</p>
                 </div>
 
-                <div id="result-container" class="hidden relative z-10 w-full text-center">
-                    <div class="text-xs font-mono text-purple-500 mb-2 tracking-[0.2em] uppercase">Selected</div>
-                    <h2 id="result-text" class="text-3xl md:text-4xl font-bold text-white leading-tight break-words">
+                <div id="result-container" class="hidden relative z-10 w-full text-center px-4">
+                    <div class="text-xs font-mono color-text-accent mb-2 tracking-[0.2em] uppercase font-bold">Selected</div>
+                    <h2 id="result-text" class="text-3xl md:text-4xl font-bold text-white leading-tight break-words transition-all duration-75">
                         <!-- Result -->
                     </h2>
                 </div>
 
-                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-900 to-transparent">
-                    <button onclick="pick()" id="pick-btn"
-                        class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-900/50 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group-hover:shadow-purple-700/50">
+                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[var(--bg-panel)] to-transparent">
+                    <button onclick="pick()" id="pick-btn" class="w-full color-btn font-bold py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
-                        EXECUTE SELECTION
+                        <span id="pick-btn-text">EXECUTE SELECTION</span>
                     </button>
                 </div>
             </div>
 
-            <!-- History Log -->
-            <div class="h-48 md:h-64 bg-slate-950 border-t border-slate-800 flex flex-col">
-                <div class="p-3 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="history" class="w-3 h-3"></i> Log
-                    </span>
-                    <button onclick="clearHistory()"
-                        class="text-xs text-slate-500 hover:text-white transition-colors">Clear Log</button>
+            <!-- Tabs: History Log vs Stats & Analytics -->
+            <div class="h-52 md:h-72 color-bg-log border-t color-border flex flex-col">
+                <!-- Tab Headers -->
+                <div class="border-b color-border color-bg-panel flex justify-between items-center px-3">
+                    <div class="flex gap-4">
+                        <button id="tab-log" onclick="switchRightTab('log')" class="py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-[var(--primary)] color-text-accent flex items-center gap-1.5 focus:outline-none">
+                            <i data-lucide="history" class="w-3.5 h-3.5"></i> Log
+                        </button>
+                        <button id="tab-analytics" onclick="switchRightTab('analytics')" class="py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-300 flex items-center gap-1.5 focus:outline-none">
+                            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Analytics
+                        </button>
+                    </div>
+                    <div id="tab-actions">
+                        <button id="clear-log-btn" onclick="clearHistory()" class="text-xs text-slate-500 hover:text-white transition-colors">Clear Log</button>
+                        <button id="clear-stats-btn" onclick="clearStats()" class="text-xs text-slate-500 hover:text-white transition-colors hidden">Clear Stats</button>
+                    </div>
                 </div>
-                <ul id="history-list" class="flex-1 overflow-y-auto p-2 space-y-1 font-mono text-sm">
-                    <!-- History items -->
-                    <li class="text-slate-600 text-xs text-center py-4 italic">No history yet...</li>
-                </ul>
+
+                <!-- Tab Contents -->
+                <div class="flex-1 overflow-y-auto p-2">
+                    <ul id="history-list" class="space-y-1 font-mono text-sm">
+                        <!-- History items -->
+                        <li class="text-slate-600 text-xs text-center py-4 italic">No history yet...</li>
+                    </ul>
+                    <div id="analytics-view" class="hidden font-mono text-xs space-y-3 p-1">
+                        <!-- Shannon Entropy & Session counts here -->
+                    </div>
+                </div>
             </div>
 
         </section>
     </main>
 
-    <!-- Footer removed as per user request for less excessive text -->
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm hidden">
+        <div class="color-bg-card border color-border rounded-2xl w-full max-w-md p-6 shadow-2xl relative mx-4 animate-[fadeIn_0.2s_ease-out]">
+            <!-- Close Button -->
+            <button onclick="closeSettings()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="settings" class="w-5 h-5 color-text-accent animate-spin-slow"></i> Settings
+            </h3>
+            
+            <div class="space-y-4 text-sm max-h-[70vh] overflow-y-auto pr-1">
+                <!-- Theme selection -->
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Theme Preset</label>
+                    <select id="setting-theme" onchange="changeSetting('theme', this.value)" class="w-full color-bg-panel border color-border rounded-xl p-2.5 color-text-base focus:outline-none focus:border-[var(--primary)] font-medium">
+                        <option value="slate">Slate & Purple (Default)</option>
+                        <option value="cyberpunk">Cyberpunk (Emerald & Black)</option>
+                        <option value="sunset">Sunset (Rose & Dark Maroon)</option>
+                        <option value="deepsea">Deep Sea (Teal & Ocean Blue)</option>
+                    </select>
+                </div>
+                
+                <!-- Roll Animation Toggle -->
+                <div class="flex items-center justify-between border-t color-border pt-3">
+                    <div>
+                        <div class="font-semibold text-white">Selection Roll Animation</div>
+                        <div class="text-xs text-slate-400">Spin through items before choosing</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="setting-anim" onchange="changeSetting('animationEnabled', this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-focus:ring-2 peer-focus:ring-[var(--primary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)]"></div>
+                    </label>
+                </div>
+                
+                <!-- Animation Speed -->
+                <div id="setting-speed-container" class="space-y-1 pl-2">
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Roll Speed & Duration</label>
+                    <select id="setting-speed" onchange="changeSetting('animationSpeed', this.value)" class="w-full color-bg-panel border color-border rounded-lg p-2 color-text-base focus:outline-none focus:border-[var(--primary)]">
+                        <option value="fast">Fast (~0.8s)</option>
+                        <option value="medium">Medium (~1.8s)</option>
+                        <option value="slow">Slow (~3.0s)</option>
+                    </select>
+                </div>
+                
+                <!-- Sound Effects Toggle -->
+                <div class="flex items-center justify-between border-t color-border pt-3">
+                    <div>
+                        <div class="font-semibold text-white">Sound Effects</div>
+                        <div class="text-xs text-slate-400">Low-latency synthesized click & chime feedback</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="setting-sound" onchange="changeSetting('soundEnabled', this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-focus:ring-2 peer-focus:ring-[var(--primary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)]"></div>
+                    </label>
+                </div>
+                
+                <!-- Sound Volume -->
+                <div id="setting-volume-container" class="space-y-1 pl-2">
+                    <div class="flex justify-between text-xs text-slate-400 font-bold uppercase">
+                        <span>Volume</span>
+                        <span id="volume-val">50%</span>
+                    </div>
+                    <input type="range" id="setting-volume" min="0" max="100" value="50" oninput="changeSetting('soundVolume', parseInt(this.value))" class="w-full accent-[var(--primary)] bg-slate-800 h-2 rounded-lg cursor-pointer">
+                </div>
+                
+                <!-- Text-to-Speech Toggle -->
+                <div class="flex items-center justify-between border-t color-border pt-3">
+                    <div>
+                        <div class="font-semibold text-white">Speak Selection</div>
+                        <div class="text-xs text-slate-400">Read the selected option out loud</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="setting-speech" onchange="changeSetting('speechEnabled', this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-focus:ring-2 peer-focus:ring-[var(--primary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)]"></div>
+                    </label>
+                </div>
+                
+                <!-- Speech Volume -->
+                <div id="setting-speech-volume-container" class="space-y-1 pl-2">
+                    <div class="flex justify-between text-xs text-slate-400 font-bold uppercase">
+                        <span>Speech Volume</span>
+                        <span id="speech-volume-val">50%</span>
+                    </div>
+                    <input type="range" id="setting-speech-volume" min="0" max="100" value="50" oninput="changeSetting('speechVolume', parseInt(this.value))" class="w-full accent-[var(--primary)] bg-slate-800 h-2 rounded-lg cursor-pointer">
+                </div>
+                
+                <!-- Max History Limit -->
+                <div class="space-y-1 border-t color-border pt-3">
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Max History Log Size</label>
+                    <input type="number" id="setting-maxhistory" min="5" max="500" value="100" onchange="changeSetting('maxHistory', parseInt(this.value))" class="w-full color-bg-panel border color-border rounded-xl p-2.5 color-text-base focus:outline-none focus:border-[var(--primary)] font-mono">
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeSettings()" class="color-btn font-bold py-2.5 px-6 rounded-xl transition-all shadow-md">
+                    DONE
+                </button>
+            </div>
+        </div>
+    </div>
 
 
     <script>
         // --- STATE ---
-        let items = [];         // The master list of items
-        let deck = [];          // The working list for "Deck" mode
-        let currentMode = 'deck'; // 'deck' or 'infinite'
-        let history = [];       // Array of history objects {text, time}
+        let items = [];              // Master raw lines
+        let deck = [];               // Exhaustive deck items
+        let weightedItems = [];      // Parsed {label, weight, probability}
+        let currentMode = 'deck';    // 'deck' | 'infinite' | 'weighted'
+        let history = [];            // History logs {text, time}
+        let pickedCounts = {};       // Unique picked session tracking {item: count}
+        
+        let settings = {
+            theme: 'slate',
+            soundEnabled: true,
+            soundVolume: 50,
+            animationEnabled: true,
+            animationSpeed: 'medium',
+            speechEnabled: false,
+            speechVolume: 50,
+            maxHistory: 100
+        };
+
+        // --- PRESETS DATA ---
+        const PRESETS = {
+            coin: "Heads\nTails",
+            dice: "1\n2\n3\n4\n5\n6",
+            rps: "Rock\nPaper\nScissors",
+            yesno: "Yes\nNo\nMaybe",
+            cards: "Hearts\nDiamonds\nClubs\nSpades",
+            numbers: Array.from({length: 100}, (_, i) => i + 1).join("\n")
+        };
+
+        // --- AUDIO SYNTHESIS ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTick(vol) {
+            if (!settings.soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.frequency.setValueAtTime(1000 + Math.random() * 400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol * 0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.025);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function playChime(vol) {
+            if (!settings.soundEnabled) return;
+            try {
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(vol * 0.15, audioCtx.currentTime + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                
+                osc1.start();
+                osc2.start();
+                osc1.stop(audioCtx.currentTime + 0.5);
+                osc2.stop(audioCtx.currentTime + 0.5);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function speakItem(text) {
+            if (!('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.volume = settings.speechVolume / 100;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
         // --- DOM ELEMENTS ---
         const inputArea = document.getElementById('input-area');
@@ -232,12 +538,14 @@
         const countRemaining = document.getElementById('count-remaining');
         const historyList = document.getElementById('history-list');
         const pickBtn = document.getElementById('pick-btn');
-        const btnModeDeck = document.getElementById('mode-deck');
-        const btnModeInfinite = document.getElementById('mode-infinite');
+        const pickBtnText = document.getElementById('pick-btn-text');
+        const weightedPreview = document.getElementById('weighted-preview-container');
+        const weightedList = document.getElementById('weighted-preview-list');
 
-        // --- INIT ---
-        lucide.createIcons();
+        // --- INITIALIZATION ---
+        loadSettings();
         loadFromStorage();
+        lucide.createIcons();
 
         // --- TOTAL STATE PERSISTENCE LOGIC ---
         function saveState() {
@@ -245,7 +553,8 @@
                 mode: currentMode,
                 deck: deck,
                 history: history,
-                input: inputArea.value
+                input: inputArea.value,
+                pickedCounts: pickedCounts
             };
             localStorage.setItem('selector_state', JSON.stringify(stateObj));
         }
@@ -254,7 +563,6 @@
             const savedState = localStorage.getItem('selector_state');
 
             if (savedState) {
-                // Load v2.1 Advanced State
                 const state = JSON.parse(savedState);
 
                 // 1. Restore Input & Master Items
@@ -267,24 +575,22 @@
                 if (state.history && state.history.length > 0) {
                     history = state.history;
                     historyList.innerHTML = ''; // Clear empty message
-                    // Append in order (newest is at index 0, so we append to keep it at the top)
                     history.forEach(item => {
-                        const li = document.createElement('li');
-                        li.className = "flex items-center gap-3 p-2 bg-slate-900/50 rounded border border-slate-800/50 animate-[fadeIn_0.3s_ease-out]";
-                        li.innerHTML = `
-                            <span class="text-slate-500 text-[10px]">${item.time}</span>
-                            <span class="text-purple-300 flex-1 truncate">${item.text}</span>
-                        `;
-                        historyList.appendChild(li);
+                        appendHistoryDOM(item.text, item.time, false);
                     });
                 }
 
-                // 3. Restore Mode
-                if (state.mode) {
-                    setMode(state.mode, false); // pass false to avoid double-saving during init
+                // 3. Restore Picked Counts (Analytics)
+                if (state.pickedCounts) {
+                    pickedCounts = state.pickedCounts;
                 }
 
-                // 4. Restore Deck
+                // 4. Restore Mode
+                if (state.mode) {
+                    setMode(state.mode, false);
+                }
+
+                // 5. Restore Deck
                 if (state.deck && state.mode === 'deck') {
                     deck = state.deck;
                 } else if (items.length > 0 && currentMode === 'deck') {
@@ -292,67 +598,277 @@
                 }
 
                 updateStats();
-            } else {
-                // Fallback for v2.0 (Just grabs the raw string if you updated from the old code)
-                const legacyData = localStorage.getItem('selector_input');
-                if (legacyData) {
-                    inputArea.value = legacyData;
-                    handleInput();
-                }
+                updateAnalyticsUI();
             }
         }
 
-        // --- CORE LOGIC ---
+        // --- SETTINGS CONTROLS ---
+        function openSettings() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
 
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('selector_settings');
+            if (saved) {
+                try {
+                    settings = { ...settings, ...JSON.parse(saved) };
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            
+            applyTheme(settings.theme);
+            
+            document.getElementById('setting-theme').value = settings.theme;
+            document.getElementById('setting-anim').checked = settings.animationEnabled;
+            document.getElementById('setting-speed').value = settings.animationSpeed;
+            document.getElementById('setting-sound').checked = settings.soundEnabled;
+            document.getElementById('setting-volume').value = settings.soundVolume;
+            document.getElementById('volume-val').textContent = `${settings.soundVolume}%`;
+            document.getElementById('setting-speech').checked = settings.speechEnabled;
+            document.getElementById('setting-speech-volume').value = settings.speechVolume;
+            document.getElementById('speech-volume-val').textContent = `${settings.speechVolume}%`;
+            document.getElementById('setting-maxhistory').value = settings.maxHistory;
+            
+            toggleSubSettings();
+        }
+
+        function toggleSubSettings() {
+            const animContainer = document.getElementById('setting-speed-container');
+            const soundContainer = document.getElementById('setting-volume-container');
+            const speechContainer = document.getElementById('setting-speech-volume-container');
+            
+            if (settings.animationEnabled) animContainer.classList.remove('hidden');
+            else animContainer.classList.add('hidden');
+            
+            if (settings.soundEnabled) soundContainer.classList.remove('hidden');
+            else soundContainer.classList.add('hidden');
+            
+            if (settings.speechEnabled) speechContainer.classList.remove('hidden');
+            else speechContainer.classList.add('hidden');
+        }
+
+        function changeSetting(key, val) {
+            settings[key] = val;
+            localStorage.setItem('selector_settings', JSON.stringify(settings));
+            
+            if (key === 'theme') {
+                applyTheme(val);
+            }
+            if (key === 'soundVolume') {
+                document.getElementById('volume-val').textContent = `${val}%`;
+            }
+            if (key === 'speechVolume') {
+                document.getElementById('speech-volume-val').textContent = `${val}%`;
+            }
+            toggleSubSettings();
+        }
+
+        function applyTheme(themeName) {
+            const htmlEl = document.documentElement;
+            htmlEl.classList.remove('theme-slate', 'theme-cyberpunk', 'theme-sunset', 'theme-deepsea');
+            htmlEl.classList.add(`theme-${themeName}`);
+            
+            // Adjust background radial glow
+            const glowEl = document.getElementById('radial-glow');
+            if (glowEl) {
+                // Tailwind will sync with custom styles
+                glowEl.style.background = `radial-gradient(circle at center, rgba(var(--primary-rgb), 0.15) 0%, var(--bg-panel) 80%)`;
+            }
+        }
+
+        // --- CORE MATHS / SECURE RNG ---
         function secureRandom() {
             const array = new Uint32Array(1);
             window.crypto.getRandomValues(array);
             return array[0] / (0xFFFFFFFF + 1);
         }
 
+        // --- MODE SELECTION ---
         function setMode(mode, save = true) {
             currentMode = mode;
+            
+            const btnDeck = document.getElementById('mode-deck');
+            const btnInfinite = document.getElementById('mode-infinite');
+            const btnWeighted = document.getElementById('mode-weighted');
+
+            // Reset buttons styling
+            [btnDeck, btnInfinite, btnWeighted].forEach(btn => {
+                btn.classList.remove('bg-[var(--primary)]', 'text-white', 'shadow');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeBtn = document.getElementById(`mode-${mode}`);
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('bg-[var(--primary)]', 'text-white', 'shadow');
 
             if (mode === 'deck') {
-                btnModeDeck.classList.remove('bg-transparent', 'text-slate-400');
-                btnModeDeck.classList.add('bg-purple-600', 'text-white');
-                btnModeInfinite.classList.remove('bg-purple-600', 'text-white');
-                btnModeInfinite.classList.add('bg-transparent', 'text-slate-400');
-
+                weightedPreview.classList.add('hidden');
                 if (deck.length === 0 && items.length > 0) {
-                    resetDeck(false); // Let the saveState below handle it
-                } else {
-                    updateStats();
+                    resetDeck(false);
                 }
-
+            } else if (mode === 'weighted') {
+                weightedPreview.classList.remove('hidden');
+                parseWeights();
+                updateWeightedPreviewUI();
             } else {
-                btnModeInfinite.classList.remove('bg-transparent', 'text-slate-400');
-                btnModeInfinite.classList.add('bg-purple-600', 'text-white');
-                btnModeDeck.classList.remove('bg-purple-600', 'text-white');
-                btnModeDeck.classList.add('bg-transparent', 'text-slate-400');
-                updateStats();
+                weightedPreview.classList.add('hidden');
             }
 
+            updateStats();
+            updateAnalyticsUI();
             if (save) saveState();
         }
 
+        // --- WEIGHTED MODE LOGIC ---
+        function parseWeights() {
+            weightedItems = [];
+            let totalWeight = 0;
+            
+            items.forEach(rawLine => {
+                // Regex checks for format: Label: weight or Label, weight
+                const match = rawLine.match(/(.+?)[:,\s]+(\d*\.?\d+)$/);
+                let label = rawLine;
+                let weight = 1.0;
+                
+                if (match) {
+                    label = match[1].trim();
+                    weight = parseFloat(match[2]);
+                    if (isNaN(weight) || weight <= 0) {
+                        weight = 1.0;
+                    }
+                }
+                
+                weightedItems.push({ label, weight });
+                totalWeight += weight;
+            });
+            
+            weightedItems.forEach(item => {
+                item.probability = totalWeight > 0 ? item.weight / totalWeight : 0;
+            });
+        }
+
+        function updateWeightedPreviewUI() {
+            weightedList.innerHTML = '';
+            if (weightedItems.length === 0) {
+                weightedList.innerHTML = '<div class="text-slate-600 italic">No weights parsed yet.</div>';
+                return;
+            }
+
+            weightedItems.forEach(item => {
+                const pct = (item.probability * 100).toFixed(1);
+                const li = document.createElement('div');
+                li.className = "flex justify-between border-b border-slate-800/40 py-1";
+                li.innerHTML = `
+                    <span class="truncate max-w-[65%] text-slate-300 font-bold">${item.label}</span>
+                    <span class="text-slate-500 text-[10px]">w:${item.weight} (${pct}%)</span>
+                `;
+                weightedList.appendChild(li);
+            });
+        }
+
+        // --- DATA POOL UTILITIES ---
         function handleInput() {
             const raw = inputArea.value;
             items = raw.split(/\n/).map(line => line.trim()).filter(line => line.length > 0);
 
             if (currentMode === 'deck') {
                 resetDeck(false);
+            } else if (currentMode === 'weighted') {
+                parseWeights();
+                updateWeightedPreviewUI();
             }
             updateStats();
-            saveState(); // Save entire state when input changes
+            updateAnalyticsUI();
+            saveState();
         }
 
+        function flashInputArea() {
+            inputArea.classList.add('ring-2', 'ring-[var(--primary)]', 'ring-opacity-50');
+            setTimeout(() => {
+                inputArea.classList.remove('ring-2', 'ring-[var(--primary)]', 'ring-opacity-50');
+            }, 300);
+        }
+
+        function sortInputAZ() {
+            if (items.length === 0) return;
+            const lines = inputArea.value.split('\n').filter(l => l.trim().length > 0);
+            lines.sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+            inputArea.value = lines.join('\n');
+            flashInputArea();
+            handleInput();
+        }
+
+        function sortInputZA() {
+            if (items.length === 0) return;
+            const lines = inputArea.value.split('\n').filter(l => l.trim().length > 0);
+            lines.sort((a, b) => b.localeCompare(a, undefined, {numeric: true, sensitivity: 'base'}));
+            inputArea.value = lines.join('\n');
+            flashInputArea();
+            handleInput();
+        }
+
+        function deduplicateInput() {
+            if (items.length === 0) return;
+            const lines = inputArea.value.split('\n');
+            const unique = [];
+            const seen = new Set();
+            lines.forEach(l => {
+                const trimmed = l.trim();
+                if (trimmed && !seen.has(trimmed)) {
+                    seen.add(trimmed);
+                    unique.push(l);
+                }
+            });
+            inputArea.value = unique.join('\n');
+            flashInputArea();
+            handleInput();
+        }
+
+        function shuffleInput() {
+            if (items.length === 0) return;
+            const lines = inputArea.value.split('\n').filter(l => l.trim().length > 0);
+            fisherYatesShuffle(lines);
+            inputArea.value = lines.join('\n');
+            flashInputArea();
+            handleInput();
+        }
+
+        function reverseInput() {
+            if (items.length === 0) return;
+            const lines = inputArea.value.split('\n');
+            lines.reverse();
+            inputArea.value = lines.join('\n');
+            flashInputArea();
+            handleInput();
+        }
+
+        function loadPreset(key) {
+            if (PRESETS[key]) {
+                inputArea.value = PRESETS[key];
+                handleInput();
+                document.getElementById('preset-select').value = "";
+            }
+        }
+
+        function clearInput() {
+            inputArea.value = '';
+            handleInput();
+            inputArea.focus();
+        }
+
+        // --- DECK UTILITIES ---
         function manualReshuffle() {
             if (currentMode === 'deck' && items.length > 0) {
                 resetDeck(true);
-                const countBox = document.getElementById('count-remaining').parentElement.parentElement.parentElement;
-                countBox.classList.add('bg-purple-900/50');
-                setTimeout(() => countBox.classList.remove('bg-purple-900/50'), 200);
+                const countBox = document.getElementById('remaining-container');
+                countBox.classList.add('bg-purple-900/30');
+                setTimeout(() => countBox.classList.remove('bg-purple-900/30'), 200);
             }
         }
 
@@ -374,6 +890,7 @@
             return array;
         }
 
+        // --- SELECTION EXECUTION ---
         function pick() {
             if (items.length === 0) {
                 inputArea.focus();
@@ -382,29 +899,117 @@
                 return;
             }
 
-            let selectedItem = "";
+            let finalItem = "";
 
             if (currentMode === 'deck') {
                 if (deck.length === 0) resetDeck(false);
-                selectedItem = deck.pop(); // Remove from deck
+                finalItem = deck.pop();
+            } else if (currentMode === 'weighted') {
+                if (weightedItems.length === 0) parseWeights();
+                finalItem = pickWeighted();
             } else {
                 const idx = Math.floor(secureRandom() * items.length);
-                selectedItem = items[idx];
+                finalItem = items[idx];
             }
 
-            displayResult(selectedItem);
-            addToHistory(selectedItem);
-            updateStats();
-            saveState(); // Crucial: Saves the new deck array and history snapshot
+            if (settings.animationEnabled) {
+                rollSequence(finalItem);
+            } else {
+                instantPick(finalItem);
+            }
         }
 
-        function displayResult(text) {
+        function pickWeighted() {
+            const r = secureRandom();
+            let cumulative = 0;
+            for (let i = 0; i < weightedItems.length; i++) {
+                cumulative += weightedItems[i].probability;
+                if (r < cumulative) {
+                    return weightedItems[i].label;
+                }
+            }
+            return weightedItems[weightedItems.length - 1].label;
+        }
+
+        async function rollSequence(finalItem) {
+            pickBtn.disabled = true;
+            pickBtn.classList.add('opacity-50');
+            pickBtnText.textContent = "SELECTING...";
+            
+            let duration = 1800;
+            if (settings.animationSpeed === 'fast') duration = 800;
+            else if (settings.animationSpeed === 'slow') duration = 3000;
+            
+            const startTime = Date.now();
+            let delay = 40;
+
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+
+            while (Date.now() - startTime < duration) {
+                // Show a random item from data pool
+                const randIdx = Math.floor(secureRandom() * items.length);
+                const randItem = items[randIdx];
+                let dispText = randItem;
+                
+                if (currentMode === 'weighted') {
+                    const match = randItem.match(/(.+?)[:,\s]+(\d*\.?\d+)$/);
+                    if (match) dispText = match[1].trim();
+                }
+
+                displaySpinText(dispText);
+                playTick(settings.soundVolume / 100);
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay = delay * 1.14; // Gradual slowing
+            }
+
+            // Final Land
+            finalizeSelection(finalItem);
+        }
+
+        function instantPick(finalItem) {
+            finalizeSelection(finalItem);
+        }
+
+        function finalizeSelection(finalItem) {
+            displayFinalText(finalItem);
+            playChime(settings.soundVolume / 100);
+            
+            if (settings.speechEnabled) {
+                speakItem(finalItem);
+            }
+
+            // Update stats
+            pickedCounts[finalItem] = (pickedCounts[finalItem] || 0) + 1;
+            addToHistory(finalItem);
+            
+            // Re-enable button
+            pickBtn.disabled = false;
+            pickBtn.classList.remove('opacity-50');
+            updateStats();
+            updateAnalyticsUI();
+            saveState();
+        }
+
+        function displaySpinText(text) {
             emptyState.classList.add('hidden');
             resultContainer.classList.remove('hidden');
-
-            resultText.classList.remove('glitch-anim');
-            void resultText.offsetWidth;
             resultText.textContent = text;
+            resultText.classList.remove('glitch-anim');
+            resultText.className = "text-3xl md:text-4xl font-bold text-white leading-tight break-words blur-[1px] opacity-75 scale-95 transition-all";
+        }
+
+        function displayFinalText(text) {
+            emptyState.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+            
+            resultText.textContent = text;
+            resultText.className = "text-3xl md:text-4xl font-bold text-white leading-tight break-words transition-all";
+            
+            // Trigger animation repaint
+            void resultText.offsetWidth;
             resultText.classList.add('glitch-anim');
 
             setTimeout(() => {
@@ -417,25 +1022,57 @@
 
             if (currentMode === 'deck') {
                 countRemaining.textContent = deck.length;
-                countRemaining.parentElement.parentElement.parentElement.classList.remove('opacity-50');
+                document.getElementById('remaining-container').classList.remove('opacity-40', 'pointer-events-none');
 
                 if (items.length > 0) {
                     if (deck.length === 0) {
-                        pickBtn.textContent = "RESHUFFLE & PICK";
-                        pickBtn.classList.add('bg-purple-600');
+                        pickBtnText.textContent = "RESHUFFLE & EXECUTE";
                     } else {
-                        pickBtn.textContent = "EXECUTE SELECTION";
+                        pickBtnText.textContent = "EXECUTE SELECTION";
                     }
                 } else {
-                    pickBtn.textContent = "WAITING FOR DATA...";
+                    pickBtnText.textContent = "WAITING FOR DATA...";
                 }
-
+            } else if (currentMode === 'weighted') {
+                countRemaining.textContent = "w";
+                document.getElementById('remaining-container').classList.add('opacity-40', 'pointer-events-none');
+                pickBtnText.textContent = "EXECUTE WEIGHTED";
             } else {
                 countRemaining.textContent = "∞";
-                countRemaining.parentElement.parentElement.parentElement.classList.add('opacity-50');
-                pickBtn.textContent = "EXECUTE RANDOM";
+                document.getElementById('remaining-container').classList.add('opacity-40', 'pointer-events-none');
+                pickBtnText.textContent = "EXECUTE RANDOM";
             }
+            lucide.createIcons();
+        }
 
+        // --- HISTORY & TABS LOGIC ---
+        let activeTab = 'log';
+
+        function switchRightTab(tabName) {
+            activeTab = tabName;
+            const tabLog = document.getElementById('tab-log');
+            const tabAnalytics = document.getElementById('tab-analytics');
+            const listEl = document.getElementById('history-list');
+            const analyticsEl = document.getElementById('analytics-view');
+            const clearLogBtn = document.getElementById('clear-log-btn');
+            const clearStatsBtn = document.getElementById('clear-stats-btn');
+
+            if (tabName === 'log') {
+                tabLog.className = "py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-[var(--primary)] color-text-accent flex items-center gap-1.5 focus:outline-none";
+                tabAnalytics.className = "py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-300 flex items-center gap-1.5 focus:outline-none";
+                listEl.classList.remove('hidden');
+                analyticsEl.classList.add('hidden');
+                clearLogBtn.classList.remove('hidden');
+                clearStatsBtn.classList.add('hidden');
+            } else {
+                tabAnalytics.className = "py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-[var(--primary)] color-text-accent flex items-center gap-1.5 focus:outline-none";
+                tabLog.className = "py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-300 flex items-center gap-1.5 focus:outline-none";
+                listEl.classList.add('hidden');
+                analyticsEl.classList.remove('hidden');
+                clearLogBtn.classList.add('hidden');
+                clearStatsBtn.classList.remove('hidden');
+                updateAnalyticsUI();
+            }
             lucide.createIcons();
         }
 
@@ -449,34 +1086,137 @@
             const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const timestamp = `${dateStr} ${timeStr}`;
 
-            // Push to state array
             history.unshift({ text: item, time: timestamp });
-            if (history.length > 100) history.pop();
+            
+            // Trim log
+            if (history.length > settings.maxHistory) {
+                history.pop();
+            }
 
-            // Render it visually
-            const li = document.createElement('li');
-            li.className = "flex items-center gap-3 p-2 bg-slate-900/50 rounded border border-slate-800/50 animate-[fadeIn_0.3s_ease-out]";
-            li.innerHTML = `
-                <span class="text-slate-500 text-[10px]">${timestamp}</span>
-                <span class="text-purple-300 flex-1 truncate">${item}</span>
-            `;
-            historyList.prepend(li);
+            // Render to DOM
+            appendHistoryDOM(item, timestamp, true);
 
-            // Cleanup DOM memory if it exceeds 100 visually
-            if (historyList.children.length > 100) {
+            if (historyList.children.length > settings.maxHistory) {
                 historyList.removeChild(historyList.lastChild);
             }
         }
 
-        function clearInput() {
-            inputArea.value = '';
-            handleInput();
-            inputArea.focus();
+        function appendHistoryDOM(text, time, prepend = true) {
+            const li = document.createElement('li');
+            li.className = "flex items-center gap-3 p-2 bg-slate-900/30 rounded-lg border color-border animate-[fadeIn_0.3s_ease-out]";
+            li.innerHTML = `
+                <span class="text-slate-500 text-[10px]">${time}</span>
+                <span class="color-text-base flex-1 truncate font-semibold">${text}</span>
+            `;
+            
+            if (prepend) {
+                historyList.prepend(li);
+            } else {
+                historyList.appendChild(li);
+            }
         }
 
         function clearHistory() {
             history = [];
             historyList.innerHTML = '<li class="text-slate-600 text-xs text-center py-4 italic">No history yet...</li>';
+            saveState();
+        }
+
+        // --- ANALYTICS CALCULATIONS ---
+        function calculateEntropy() {
+            if (items.length === 0) return { entropy: 0, efficiency: 0, uniqueCount: 0 };
+            
+            let probs = [];
+            let uniqueCount = 0;
+
+            if (currentMode === 'weighted') {
+                parseWeights();
+                probs = weightedItems.map(item => item.probability);
+                uniqueCount = new Set(weightedItems.map(item => item.label)).size;
+            } else {
+                const freq = {};
+                items.forEach(item => { freq[item] = (freq[item] || 0) + 1; });
+                const total = items.length;
+                probs = Object.values(freq).map(count => count / total);
+                uniqueCount = Object.keys(freq).length;
+            }
+
+            let entropy = 0;
+            probs.forEach(p => {
+                if (p > 0) entropy -= p * Math.log2(p);
+            });
+
+            const maxEntropy = uniqueCount > 1 ? Math.log2(uniqueCount) : 0;
+            const efficiency = maxEntropy > 0 ? (entropy / maxEntropy) * 100 : 100;
+
+            return {
+                entropy,
+                efficiency,
+                uniqueCount
+            };
+        }
+
+        function updateAnalyticsUI() {
+            const container = document.getElementById('analytics-view');
+            if (!container) return;
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="text-slate-600 text-xs text-center py-4 italic">Waiting for data...</div>';
+                return;
+            }
+
+            const { entropy, efficiency, uniqueCount } = calculateEntropy();
+            const totalPicks = Object.values(pickedCounts).reduce((a, b) => a + b, 0);
+
+            // Render picking statistics
+            let countsHTML = '';
+            const sortedCounts = Object.entries(pickedCounts).sort((a, b) => b[1] - a[1]);
+
+            if (sortedCounts.length === 0) {
+                countsHTML = '<div class="text-slate-600 italic py-4 text-center">No picks logged this session yet.</div>';
+            } else {
+                countsHTML = '<div class="space-y-2 max-h-[140px] overflow-y-auto pr-1 mt-2">';
+                sortedCounts.forEach(([lbl, cnt]) => {
+                    const pct = totalPicks > 0 ? (cnt / totalPicks * 100).toFixed(1) : 0;
+                    countsHTML += `
+                        <div class="space-y-0.5">
+                            <div class="flex justify-between text-[10px]">
+                                <span class="color-text-base truncate max-w-[70%] font-bold">${lbl}</span>
+                                <span class="text-slate-400">${cnt} <span class="text-[8px] opacity-60">(${pct}%)</span></span>
+                            </div>
+                            <div class="w-full bg-slate-900 border color-border rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-[var(--primary)] h-1.5 rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                countsHTML += '</div>';
+            }
+
+            container.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 text-center border-b color-border pb-3">
+                    <div class="color-bg-panel/40 rounded-xl p-2 border color-border shadow-inner">
+                        <div class="text-[9px] color-text-muted uppercase font-bold tracking-wider">Entropy</div>
+                        <div class="text-sm font-bold color-text-accent mt-0.5">${entropy.toFixed(3)} <span class="text-[8px] font-normal text-slate-500">bits</span></div>
+                    </div>
+                    <div class="color-bg-panel/40 rounded-xl p-2 border color-border shadow-inner">
+                        <div class="text-[9px] color-text-muted uppercase font-bold tracking-wider">Efficiency</div>
+                        <div class="text-sm font-bold color-text-accent mt-0.5">${efficiency.toFixed(1)}%</div>
+                    </div>
+                </div>
+                <div class="pt-1">
+                    <div class="flex justify-between items-center text-[10px] color-text-muted font-bold uppercase tracking-wider">
+                        <span>Picks Stats</span>
+                        <span>Total Picks: ${totalPicks}</span>
+                    </div>
+                    ${countsHTML}
+                </div>
+            `;
+        }
+
+        function clearStats() {
+            pickedCounts = {};
+            updateAnalyticsUI();
             saveState();
         }
     </script>
