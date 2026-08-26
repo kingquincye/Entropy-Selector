@@ -252,6 +252,22 @@
                     <button onclick="reverseInput()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
                         <i data-lucide="arrow-left-right" class="w-3 h-3"></i> Reverse
                     </button>
+                    <div class="w-px h-5 bg-slate-800 self-center mx-1"></div>
+                    <button onclick="triggerImport()" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold">
+                        <i data-lucide="upload" class="w-3 h-3"></i> Import
+                    </button>
+                    <input type="file" id="import-file-input" class="hidden" accept=".txt,.csv,.json" onchange="importList(event)">
+                    <div class="relative">
+                        <select id="export-select" onchange="exportList(this.value)" class="px-2 py-1 color-bg-panel hover:bg-slate-800 border color-border text-[10px] rounded-lg color-text-base transition-colors flex items-center gap-1 font-bold focus:outline-none focus:border-[var(--primary)] appearance-none pr-6 cursor-pointer">
+                            <option value="" disabled selected>Export...</option>
+                            <option value="txt">Plain Text (.txt)</option>
+                            <option value="csv">CSV Spreadsheet (.csv)</option>
+                            <option value="json">Structured JSON (.json)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-1.5 flex items-center text-slate-500">
+                            <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                        </div>
+                    </div>
                 </div>
 
                 <textarea id="input-area" oninput="handleInput()"
@@ -1328,6 +1344,145 @@
             pickedCounts = {};
             updateAnalyticsUI();
             saveState();
+        }
+
+        // --- IMPORT / EXPORT LOGIC ---
+        function triggerImport() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function importList(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            const extension = file.name.split('.').pop().toLowerCase();
+
+            reader.onload = function(e) {
+                const content = e.target.result;
+                try {
+                    if (extension === 'json') {
+                        const parsed = JSON.parse(content);
+                        if (parsed.items && Array.isArray(parsed.items)) {
+                            inputArea.value = parsed.items.join('\n');
+                            if (parsed.mode) {
+                                setMode(parsed.mode, false);
+                            }
+                        } else if (Array.isArray(parsed)) {
+                            inputArea.value = parsed.map(item => {
+                                if (typeof item === 'object' && item.label) {
+                                    return item.weight ? `${item.label}: ${item.weight}` : item.label;
+                                }
+                                return item;
+                            }).join('\n');
+                        } else {
+                            throw new Error('Invalid JSON structure');
+                        }
+                    } else if (extension === 'csv') {
+                        const lines = content.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+                        const parsedLines = [];
+                        lines.forEach((line, idx) => {
+                            const cols = [];
+                            let current = '';
+                            let inQuotes = false;
+                            for (let i = 0; i < line.length; i++) {
+                                const char = line[i];
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    cols.push(current.trim());
+                                    current = '';
+                                } else {
+                                    current += char;
+                                }
+                            }
+                            cols.push(current.trim());
+                            
+                            if (idx === 0 && (cols[0].toLowerCase() === 'item' || cols[0].toLowerCase() === 'label' || cols[0].toLowerCase() === 'text')) {
+                                return;
+                            }
+                            
+                            if (cols[0]) {
+                                if (cols[1] && !isNaN(parseFloat(cols[1]))) {
+                                    parsedLines.push(`${cols[0]}: ${cols[1]}`);
+                                } else {
+                                    parsedLines.push(cols[0]);
+                                }
+                            }
+                        });
+                        inputArea.value = parsedLines.join('\n');
+                    } else {
+                        inputArea.value = content;
+                    }
+                    
+                    handleInput();
+                    flashInputArea();
+                } catch (err) {
+                    alert('Error parsing list file: ' + err.message);
+                }
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
+        }
+
+        function exportList(format) {
+            if (items.length === 0) {
+                alert('No items in the list to export.');
+                document.getElementById('export-select').value = '';
+                return;
+            }
+
+            let content = '';
+            let filename = `entropy_selector_list_${new Date().toISOString().split('T')[0]}`;
+            let mimeType = 'text/plain';
+
+            if (format === 'txt') {
+                content = inputArea.value;
+                filename += '.txt';
+                mimeType = 'text/plain';
+            } else if (format === 'csv') {
+                content = 'Label,Weight\n';
+                if (currentMode === 'weighted') {
+                    if (weightedItems.length === 0) parseWeights();
+                    weightedItems.forEach(item => {
+                        const escapedLabel = item.label.replace(/"/g, '""');
+                        content += `"${escapedLabel}",${item.weight}\n`;
+                    });
+                } else {
+                    items.forEach(item => {
+                        const escapedLabel = item.replace(/"/g, '""');
+                        content += `"${escapedLabel}",1\n`;
+                    });
+                }
+                filename += '.csv';
+                mimeType = 'text/csv';
+            } else if (format === 'json') {
+                const exportObj = {
+                    mode: currentMode,
+                    items: items
+                };
+                if (currentMode === 'weighted') {
+                    if (weightedItems.length === 0) parseWeights();
+                    exportObj.weightedItems = weightedItems;
+                }
+                content = JSON.stringify(exportObj, null, 2);
+                filename += '.json';
+                mimeType = 'application/json';
+            }
+
+            const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            document.getElementById('export-select').value = '';
         }
     </script>
 </body>
